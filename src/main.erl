@@ -10,41 +10,56 @@
 -author("akhil").
 
 %% API
--export([start/0, hi/0]).
+-export([start/0]).
 -export([init_topology/3,  grid_view/2, grid_view/4, imperfect_view/2, imperfect_view/5 ,check_for_convergence_condition/2]).
 
 -define(GOSSIP_MESSAGE, "gossip_message").
 
-hi()->
-  io:format("Hi").
 
 start() ->
-  {ok, Actor} = {ok, 16},
-  {ok, Topology} = {ok, "Imperfect 3D"},
+  {ok, Actor} = {ok, 650},
+  {ok, Topology} = {ok, "Line"},
   {ok, Algorithm} = io:read("Input Algo ~n"),
   io:format("Actors ~w, Topology ~p, Algorithms ~p ~n", [Actor, Topology, Algorithm]),
-
-  if
-    Algorithm  == "Gossip Algorithm"->
-      ActorList = [spawn(gossip, spawn_actors, [10]) || _ <- lists:seq(1, Actor)];
-
-    Algorithm == "Push Sum Algorithm" ->
-      ActorList = [spawn(push_sum, spawn_actors, [10]) || _ <- lists:seq(1, Actor)];
-
-    true -> ActorList =[]
-  end,
-
-  NeighbourList = init_topology(Actor, Topology, ActorList),
-  Index = rand:uniform(Actor),
-  Initial_Gossip_Pid = lists:nth(Index, ActorList),
 
   Convergence_Pid = spawn(?MODULE, check_for_convergence_condition, [Actor, erlang:system_time(millisecond)]),
   register(convergence, Convergence_Pid),
 
-  Pass_to_Neighbours_Pid = spawn(gossip, pass_message_to_neighbours, []),
-  register(pass_message_to_neighbours, Pass_to_Neighbours_Pid),
 
-  Initial_Gossip_Pid ! {"Gossip_Message", Index, NeighbourList, ActorList, self()},
+  if
+    Algorithm  == "Gossip Algorithm"->
+      ActorList = [spawn(gossip, spawn_actors, [60]) || _ <- lists:seq(1, Actor)];
+
+    Algorithm == "Push Sum Algorithm" ->
+      ActorList = [spawn(push_sum, spawn_actors, [Idx, 1, 0]) || Idx <- lists:seq(1, Actor)];
+
+    true -> ActorList =[]
+  end,
+
+
+  NeighbourList = init_topology(Actor, Topology, ActorList),
+  %io:format("Neighbour List is ~p, Actor List is ~p ~n", [NeighbourList, ActorList]),
+
+
+  Index = rand:uniform(Actor),
+
+  if
+    Algorithm  == "Gossip Algorithm"->
+      io:format("Reached Here"),
+      Initial_Gossip_Pid = lists:nth(Index, ActorList),
+      Pass_to_Neighbours_Pid = spawn(gossip, pass_message_to_neighbours, []),
+      register(pass_message_to_neighbours, Pass_to_Neighbours_Pid),
+      Initial_Gossip_Pid ! {"Gossip_Message", Index, NeighbourList, ActorList, self()};
+
+    Algorithm == "Push Sum Algorithm" ->
+      Initial_Path_Sum_Pid = lists:nth(Index, ActorList),
+      Pass_to_Neighbours_Pid = spawn(push_sum, pass_message_to_neighbours, []),
+      register(pass_message_to_neighbours, Pass_to_Neighbours_Pid),
+      Initial_Path_Sum_Pid ! {"Push_Sum", Index, NeighbourList, ActorList, self(), 0, 0};
+
+    true -> do_nothing
+  end,
+
   io:format("Process Inited").
 
 
@@ -58,6 +73,7 @@ check_for_convergence_condition(0, Start_Time) ->
 check_for_convergence_condition(Actor, Start_Time) ->
   receive {"Actor Finished Work", Pid} ->
     Pid,
+    %io:format("Converged Count ~p ~n", [Actor]),
     check_for_convergence_condition(Actor - 1, Start_Time)
   end.
 
@@ -82,8 +98,8 @@ create_neighbours(ActorList, Topology, Actors) ->
   %io:format("2D Neighbour array is ~p and Actor array is ~p ~n", [Neighbours, ActorList]);
 
     Topology == "Imperfect 3D" ->
-      Neighbours = imperfect_view(Actors, ActorList),
-      io:format("2D Neighbour array is ~p and Actor array is ~p ~n", [Neighbours, ActorList]);
+      Neighbours = imperfect_view(Actors, ActorList);
+      %io:format("2D Neighbour array is ~p and Actor array is ~p ~n", [Neighbours, ActorList]);
     true -> invalid_topology, Neighbours = []
   end,
   Neighbours.

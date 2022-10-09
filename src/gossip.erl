@@ -25,7 +25,7 @@ spawn_actors(Counter)->
     Parent,
     if
       Counter == 0 ->
-        io:format("Actor ~p Converged ~n", [self()]),
+        io:format("Convergence achieved for ~p ~n", [self()]),
         convergence ! {"Actor Finished Work", self()},
         pass_message_to_neighbours ! {"Can't acknowledge any more messages", "Dead", Parent, ActorList, NeighbourList, self()},
         exit(normal);
@@ -53,13 +53,14 @@ pass_message_to_neighbours() ->
           pass_message_to_neighbours();
         true ->
           Neighbour_Pid ! {"Gossip_Message", index_of(Neighbour_Pid, ActorList), NeighbourList, ActorList, PID},
+          self() ! {Index, NeighbourList, ActorList, PID},
           pass_message_to_neighbours()
       end;
 
     {"Can't acknowledge any more messages", State , PID, ActorList, NeighbourList, Neighbour_Pid} ->
-      State,
-      Is_Alive = is_process_alive(Neighbour_Pid),
-      io:format("status is ~p ~n", [Is_Alive]),
+      State, Neighbour_Pid,
+      %Is_Alive = is_process_alive(Neighbour_Pid),
+
       self() ! {index_of(PID, ActorList), NeighbourList, ActorList, PID},
       pass_message_to_neighbours()
 
