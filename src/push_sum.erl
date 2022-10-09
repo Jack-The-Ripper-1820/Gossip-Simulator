@@ -14,6 +14,6 @@
 
 
 spawn_actors()->
-  receive {Message, PID} ->
-    io:format("Message ~p received from PID ~p", [Message, PID])
-  end.
+    receive {Message} ->
+        io:format("Hi ~p", [Message])
+    end.
