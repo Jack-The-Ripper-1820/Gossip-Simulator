@@ -273,38 +273,46 @@ imperfect_view(Index, Grid_Matrix, Rows, Neighbours, ActorList) ->
         Ele_col == 1 ->
           N1= lists:nth(Ele_col + 1, lists:nth(Ele_rows, Grid_Matrix)),
           N2= lists:nth(Ele_col, lists:nth(Ele_rows + 1, Grid_Matrix)),
-          Rem_List = ActorList -- [N1, N2, Ele],
-          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2,lists:nth( rand:uniform(length(Rem_List)), Rem_List) ]]), ActorList);
+          N3 = lists:nth(Ele_col + 1, lists:nth(Ele_rows + 1, Grid_Matrix)),
+          Rem_List = ActorList -- [N1, N2, N3, Ele],
+          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3,lists:nth( rand:uniform(length(Rem_List)), Rem_List) ]]), ActorList);
         Ele_col == Rows ->
           N1= lists:nth(Ele_col, lists:nth(Ele_rows + 1, Grid_Matrix)),
           N2= lists:nth(Ele_col - 1, lists:nth(Ele_rows , Grid_Matrix)),
-          Rem_List = ActorList -- [N1, N2, Ele],
-          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList);
+          N3 = lists:nth(Ele_col - 1, lists:nth(Ele_rows + 1, Grid_Matrix)),
+          Rem_List = ActorList -- [N1, N2, N3, Ele],
+          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3,lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList);
         true ->
           N1 = lists:nth(Ele_col - 1, lists:nth(Ele_rows, Grid_Matrix)),
           N2= lists:nth(Ele_col + 1, lists:nth(Ele_rows, Grid_Matrix)),
           N3 = lists:nth(Ele_col, lists:nth(Ele_rows + 1, Grid_Matrix)),
-          Rem_List = ActorList -- [N1, N2, N3, Ele],
-          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList)
+          N4 = lists:nth(Ele_col - 1, lists:nth(Ele_rows + 1, Grid_Matrix)),
+          N5 = lists:nth(Ele_col + 1, lists:nth(Ele_rows + 1, Grid_Matrix)),
+          Rem_List = ActorList -- [N1, N2, N3, N4, N5, Ele],
+          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, N4, N5, lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList)
       end;
     Ele_rows == Rows ->
       if
         Ele_col == 1 ->
           N1= lists:nth(Ele_col, lists:nth(Ele_rows - 1, Grid_Matrix)),
           N2= lists:nth(Ele_col + 1, lists:nth(Ele_rows, Grid_Matrix)),
-          Rem_List = ActorList -- [N1, N2, Ele],
-          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, lists:nth( rand:uniform(length(Rem_List)), Rem_List) ]]), ActorList);
+          N3 = lists:nth(Ele_col + 1, lists:nth(Ele_rows - 1, Grid_Matrix)),
+          Rem_List = ActorList -- [N1, N2, N3, Ele],
+          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, lists:nth( rand:uniform(length(Rem_List)), Rem_List) ]]), ActorList);
         Ele_col == Rows ->
           N1= lists:nth(Ele_col, lists:nth(Ele_rows - 1, Grid_Matrix)),
           N2= lists:nth(Ele_col - 1, lists:nth(Ele_rows, Grid_Matrix)),
-          Rem_List = ActorList -- [N1, N2, Ele],
-          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, lists:nth( rand:uniform(length(Rem_List)), Rem_List) ]]), ActorList);
+          N3 = lists:nth(Ele_col - 1, lists:nth(Ele_rows - 1, Grid_Matrix)),
+          Rem_List = ActorList -- [N1, N2, N3, Ele],
+          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, lists:nth( rand:uniform(length(Rem_List)), Rem_List) ]]), ActorList);
         true ->
           N1 = lists:nth(Ele_col, lists:nth(Ele_rows - 1, Grid_Matrix)),
           N2= lists:nth(Ele_col + 1, lists:nth(Ele_rows, Grid_Matrix)),
           N3 = lists:nth(Ele_col - 1, lists:nth(Ele_rows, Grid_Matrix)),
-          Rem_List = ActorList -- [N1, N2, N3, Ele],
-          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList)
+          N4 = lists:nth(Ele_col - 1, lists:nth(Ele_rows - 1, Grid_Matrix)),
+          N5 = lists:nth(Ele_col + 1, lists:nth(Ele_rows - 1, Grid_Matrix)),
+          Rem_List = ActorList -- [N1, N2, N3, N4, N5, Ele],
+          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, N4, N5, lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList)
       end;
     true ->
       if
@@ -312,21 +320,29 @@ imperfect_view(Index, Grid_Matrix, Rows, Neighbours, ActorList) ->
           N1 = lists:nth(Ele_col, lists:nth(Ele_rows - 1, Grid_Matrix)),
           N2= lists:nth(Ele_col , lists:nth(Ele_rows + 1, Grid_Matrix)),
           N3 = lists:nth(Ele_col + 1, lists:nth(Ele_rows, Grid_Matrix)),
-          Rem_List = ActorList -- [N1, N2, N3, Ele],
-          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3,  lists:nth( rand:uniform(length(Rem_List)), Rem_List) ]]), ActorList);
+          N4 = lists:nth(Ele_col + 1, lists:nth(Ele_rows - 1, Grid_Matrix)),
+          N5 = lists:nth(Ele_col + 1, lists:nth(Ele_rows + 1, Grid_Matrix)),
+          Rem_List = ActorList -- [N1, N2, N3, N4, N5, Ele],
+          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, N4, N5, lists:nth( rand:uniform(length(Rem_List)), Rem_List) ]]), ActorList);
         Ele_col == Rows ->
           N1 = lists:nth(Ele_col, lists:nth(Ele_rows - 1, Grid_Matrix)),
           N2= lists:nth(Ele_col , lists:nth(Ele_rows + 1, Grid_Matrix)),
           N3 = lists:nth(Ele_col - 1, lists:nth(Ele_rows, Grid_Matrix)),
-          Rem_List = ActorList -- [N1, N2, N3, Ele],
-          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3,  lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList);
+          N4 = lists:nth(Ele_col - 1, lists:nth(Ele_rows - 1, Grid_Matrix)),
+          N5 = lists:nth(Ele_col - 1, lists:nth(Ele_rows + 1, Grid_Matrix)),
+          Rem_List = ActorList -- [N1, N2, N3, N4, N5, Ele],
+          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, N4, N5, lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList);
         true ->
           N1 = lists:nth(Ele_col, lists:nth(Ele_rows - 1, Grid_Matrix)),
           N2= lists:nth(Ele_col , lists:nth(Ele_rows + 1, Grid_Matrix)),
           N3 = lists:nth(Ele_col - 1, lists:nth(Ele_rows, Grid_Matrix)),
           N4 = lists:nth(Ele_col + 1, lists:nth(Ele_rows, Grid_Matrix)),
-          Rem_List = ActorList -- [N1, N2, N3, N4, Ele],
-          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, N4,  lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList)
+          N5 = lists:nth(Ele_col - 1, lists:nth(Ele_rows - 1, Grid_Matrix)),
+          N6= lists:nth(Ele_col - 1, lists:nth(Ele_rows + 1, Grid_Matrix)),
+          N7 = lists:nth(Ele_col + 1, lists:nth(Ele_rows - 1, Grid_Matrix)),
+          N8 = lists:nth(Ele_col + 1, lists:nth(Ele_rows + 1, Grid_Matrix)),
+          Rem_List = ActorList -- [N1, N2, N3, N4, N5, N6, N7, N8, Ele],
+          imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, N4, N5, N6, N7, N8, lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList)
       end
   end.
 

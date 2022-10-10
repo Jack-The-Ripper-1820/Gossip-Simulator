@@ -32,17 +32,39 @@ In our implementation of Push-Sum algorithm, every node is initialized with the 
 project handout of s = i and w = 1. Similar to our gossip implementation, the number of nodes is rounded to the nearest perfect square for 2D grid and Imperfect 2D grid topologies. The main process asks a random node to start which then passes a message consisting of a tuple of (s/2, w/2) to a rrandom neighbor while keeping values of s/2 and w/2 as its state. When an actor receives a message tuple, it adds the tuple to its state and keeps half its value while passing on another half to a random node. This process continues until an actor’s s/w ratio does not change more than 1.0e-10 for three consecutive iterations after which the actor terminates i.e. it stops passing
 a tuple to a random neighbor and the algorithm converges when the sum estimates i.e. s/w converges to the average of the sum.
 
+**Note** - All the performance metrics are subject to change depending on the system it is running on and it's specifications.
+The following readings 
+
+
 **Performance Metrics (Convergence Time vs Number of actors/nodes)**
+
+![img.png](img.png)
 
 **Gossip Algorithm**
 
+**Line Topology**
+
 ![](../line gossip.png)
+
+**Full Topology**
 
 ![](../full gossip.png)
 
+**2D Topology**
+
 ![](../2D gossip.png)
 
+**Imperfect 3D Topology**
+
 ![](../3D gossip.png)
+
+**Comparison of Gossip**
+
+![](../gossip combined.png)
+
+**
+
+
 
 
 
