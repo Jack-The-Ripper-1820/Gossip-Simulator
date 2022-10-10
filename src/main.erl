@@ -17,8 +17,8 @@
 
 
 start() ->
-  {ok, Actor} = {ok, 650},
-  {ok, Topology} = {ok, "Line"},
+  {ok, Actor} = io:read("Enter the no of actors to spawn"),
+  {ok, Topology} = io:read("Enter the type of topology. They should be Full Network/Line/2D/Imperfect 3D"),
   {ok, Algorithm} = io:read("Input Algo ~n"),
   io:format("Actors ~w, Topology ~p, Algorithms ~p ~n", [Actor, Topology, Algorithm]),
 
@@ -28,7 +28,7 @@ start() ->
 
   if
     Algorithm  == "Gossip Algorithm"->
-      ActorList = [spawn(gossip, spawn_actors, [60]) || _ <- lists:seq(1, Actor)];
+      ActorList = [spawn(gossip, spawn_actors, [10]) || _ <- lists:seq(1, Actor)];
 
     Algorithm == "Push Sum Algorithm" ->
       ActorList = [spawn(push_sum, spawn_actors, [Idx, 1, 0]) || Idx <- lists:seq(1, Actor)];
@@ -95,7 +95,7 @@ create_neighbours(ActorList, Topology, Actors) ->
 
     Topology == "2D" ->
       Neighbours = grid_view(Actors, ActorList);
-  %io:format("2D Neighbour array is ~p and Actor array is ~p ~n", [Neighbours, ActorList]);
+%%      io:format("2D Neighbour array is ~p and Actor array is ~p ~n", [Neighbours, ActorList]);
 
     Topology == "Imperfect 3D" ->
       Neighbours = imperfect_view(Actors, ActorList);

@@ -67,9 +67,9 @@ pass_message_to_neighbours() ->
                     self() ! {Index, NeighbourList, ActorList, PID, S, W},
                     pass_message_to_neighbours();
                 true ->
-                    io:format("Triggering"),
+%%                    io:format("Triggering"),
                     Neighbour_Pid ! {"Push_Sum", index_of(Neighbour_Pid, ActorList), NeighbourList, ActorList, PID, S, W},
-                    self() ! {Index, NeighbourList, ActorList, PID, S, W},
+%%                    self() ! {Index, NeighbourList, ActorList, PID, S, W},
                     pass_message_to_neighbours()
             end;
 
