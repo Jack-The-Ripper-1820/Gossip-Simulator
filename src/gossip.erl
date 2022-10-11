@@ -42,16 +42,23 @@ pass_message_to_neighbours(Topology) ->
 
       if Topology == "Full Network" ->
         Neighbours = ActorList -- [PID],
-        X  = get_alive_actor(length(Neighbours), Neighbours),
+
+        Rand = rand:uniform(length(Neighbours)),
+        Ele = lists:nth(Rand, Neighbours),
+        Alive =  is_process_alive(Ele),
+        if
+          Alive -> X = Ele;
+          true -> X  = get_alive_actor(length(Neighbours), Neighbours)
+        end,
         if  X == no_alive_actor -> gossip_supervisor ! {"No_Neighbours_Found", "Help_For_Convergence",X};
-            true -> X ! {"Gossip_Message", index_of(X, ActorList), NeighbourList, ActorList, PID}
+          true -> X ! {"Gossip_Message", index_of(X, ActorList), NeighbourList, ActorList, PID}
         end;
         true ->  Neighbours = lists:nth(Index, NeighbourList)
       end,
 
       if length(Neighbours) == 0 ->
-         io:format("No neighbours to communicate for ~p ~n", [PID]),
-          gossip_supervisor ! {"No_Neighbours_Found", "Help_For_Convergence",PID};
+        io:format("No neighbours to communicate for ~p ~n", [PID]),
+        gossip_supervisor ! {"No_Neighbours_Found", "Help_For_Convergence",PID};
 
         true ->
           Len = length(Neighbours),
@@ -69,7 +76,7 @@ pass_message_to_neighbours(Topology) ->
               self() ! {Index, NeighbourList, ActorList, PID},
               pass_message_to_neighbours(Topology)
           end,
-      pass_message_to_neighbours(Topology)
+          pass_message_to_neighbours(Topology)
       end;
 
     {"Can't acknowledge any more messages", State , PID, ActorList, NeighbourList, Neighbour_Pid} ->
@@ -112,7 +119,7 @@ gossip_supervisor(Actor_List, Times_Called, NeighbourList) ->
       true ->
         Ind  = index_of(Alive_Actor, Actor_List),
         io:format("Alive actor found ~p, and Index is ~p", [Alive_Actor, Ind]),
-         Alive_Actor !  {"Gossip_Message", Ind, NeighbourList, Actor_List, Process_Id}
+        Alive_Actor !  {"Gossip_Message", Ind, NeighbourList, Actor_List, Process_Id}
     end,
 
     gossip_supervisor(Actor_List, Times_Called + 1, NeighbourList)
@@ -133,6 +140,3 @@ get_alive_actor(Len, Actor_List) ->
       Actor;
     true -> get_alive_actor(Len - 1, Actor_List)
   end.
-
-
-
