@@ -176,6 +176,7 @@ populate_grid(Idx, Rows, Actors, ActorList, RowEle, Matrix) ->
 
 grid_view(Actors , ActorList) ->
   Rows =  round(math:sqrt(Actors)),
+  io:format("actos ~p", [Actors]),
   Grid_Matrix =  populate_grid(1, Rows, Actors, ActorList, [], []),
   grid_view(Actors, Grid_Matrix, Rows, []).
 

@@ -12,7 +12,8 @@ We managed to make every topology work with some implementation changes to solve
 
 **What is the largest network you managed to deal with for each type of topology and algorithm?**
 
-After extensive testing, we inferred that the largest network we were able to reach convergence for is for the Full Network topology implementing the Gossip algorithm, although it also Full Network topology also had the highest memory usage. The traditional Memory-Performace tradeoff seems to also be applicable here. The details for each topology is as follows
+After extensive testing, we inferred that the largest network we were able to reach convergence for is for the Full Network topology implementing the Gossip algorithm, although it also Full Network topology also had the highest memory usage. 
+The traditional Memory-Performance tradeoff seems to also be applicable here. The details for each topology is as follows
 
 Gossip Algorithm:
 Full - 5000,
@@ -21,10 +22,10 @@ Imperfect 3D - 4000,
 Line - 3000
 
 Push Sum Algorithm: 
-Full - 5000,
-Imperfect 3D - 4000,
-2D - 4000,
-Line - 3000
+Full - 3000,
+Imperfect 3D - 2000,
+2D - 2000,
+Line - 1500
 
 
 **Project Description**
@@ -41,10 +42,15 @@ Push Sum Algorithm - https://www.cs.cornell.edu/johannes/papers/2003/focs2003-go
 3) Enter the number of actors to be spawned by the algorithm.
 4) Enter the type of topology (Full Network/Line/2D/Imperfect 3D) in string format.
 5) Enter the type of algorithm (Gossip Algorithm/Push Sum Algorithm) in string format.
-6) This will start the execution of the selected algorithm and the user will be notified in the terminal of the time it took to reach convergence for the given parameters.
+8) This will start the execution of the selected algorithm and the user will be notified in the terminal of the time it took to reach convergence for the given parameters.
 
-**Note**
+**Input Format**
 
+{Number of actors (integer), Topology (string), Algorithm (string)}.
+
+Ex - {484, "2D", "Gossip Algorithm"}.
+
+**Note** - 
 It is mandatory that the input number of nodes be perfect squares for the 2D and Imperfect 3D topologies.
 
 **Implementation**
@@ -65,9 +71,10 @@ The following readings were calculated and averaged based on readings from two c
 
 **Performance Metrics (Convergence Time vs Number of actors/nodes)**
 
-![img.png](src/img.png)
 
 **Gossip Algorithm**
+
+![img.png](img.png)
 
 **Line Topology**
 
@@ -90,6 +97,28 @@ The following readings were calculated and averaged based on readings from two c
 ![](gossip combined.png)
 
 **Push Sum Algorithm**
+
+![img_1.png](img_1.png)
+
+**Line Topology**
+
+![](line PS.png)
+
+**Full Topology**
+
+![](full PS.png)
+
+**2D Topology**
+
+![](2D PS.png)
+
+**Imperfect 3D Topology**
+
+![](3D PS.png)
+
+**Comparison of Push Sum Algorithm**
+
+![](PS combined.png)
 
 
 
