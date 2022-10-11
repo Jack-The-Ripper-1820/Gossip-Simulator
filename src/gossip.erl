@@ -10,7 +10,7 @@
 -author("akhil").
 
 %% API
--export([spawn_actors/1, pass_message_to_neighbours / 0, index_of/2, update_neighbours/ 2, get_alive_actor/ 2, gossip_supervisor / 3]).
+-export([spawn_actors/2, pass_message_to_neighbours / 1, index_of/2, update_neighbours/ 2, get_alive_actor/ 2, gossip_supervisor / 3]).
 
 index_of(Item, List) -> index_of(Item, List, 1).
 
@@ -20,9 +20,8 @@ index_of(Item, [_|Tl], Index) -> index_of(Item, Tl, Index+1).
 
 
 
-spawn_actors(Counter)->
+spawn_actors(Counter, Topology)->
   receive {"Gossip_Message", Index, NeighbourList, ActorList, Parent} ->
-
     Parent,
     if
       Counter == 0->
@@ -32,16 +31,24 @@ spawn_actors(Counter)->
         exit(normal);
       true ->
         pass_message_to_neighbours ! {Index, NeighbourList, ActorList, self()},
-        spawn_actors(Counter - 1)
+        spawn_actors(Counter - 1, Topology)
     end
   end.
 
 
-pass_message_to_neighbours() ->
+pass_message_to_neighbours(Topology) ->
   receive
     {Index, NeighbourList, ActorList, PID} ->
 
-      Neighbours = lists:nth(Index, NeighbourList),
+      if Topology == "Full Network" ->
+        Neighbours = ActorList -- [PID],
+        X  = get_alive_actor(length(Neighbours), Neighbours),
+        if  X == no_alive_actor -> gossip_supervisor ! {"No_Neighbours_Found", "Help_For_Convergence",X};
+            true -> X ! {"Gossip_Message", index_of(X, ActorList), NeighbourList, ActorList, PID}
+        end;
+        true ->  Neighbours = lists:nth(Index, NeighbourList)
+      end,
+
       if length(Neighbours) == 0 ->
          io:format("No neighbours to communicate for ~p ~n", [PID]),
           gossip_supervisor ! {"No_Neighbours_Found", "Help_For_Convergence",PID};
@@ -56,19 +63,19 @@ pass_message_to_neighbours() ->
               Deleted_Neig = Neighbours -- [lists:nth(Rand_index, Neighbours)],
               Updated_Neighbours = lists:sublist(NeighbourList, Index - 1) ++  [Deleted_Neig] ++ lists:nthtail(Index, NeighbourList),
               self() ! {Index, Updated_Neighbours, ActorList, PID},
-              pass_message_to_neighbours();
+              pass_message_to_neighbours(Topology);
             true ->
               Neighbour_Pid ! {"Gossip_Message", index_of(Neighbour_Pid, ActorList), NeighbourList, ActorList, PID},
               self() ! {Index, NeighbourList, ActorList, PID},
-              pass_message_to_neighbours()
+              pass_message_to_neighbours(Topology)
           end,
-      pass_message_to_neighbours()
+      pass_message_to_neighbours(Topology)
       end;
 
     {"Can't acknowledge any more messages", State , PID, ActorList, NeighbourList, Neighbour_Pid} ->
       State, Neighbour_Pid,
       self() ! {index_of(PID, ActorList), NeighbourList, ActorList, PID},
-      pass_message_to_neighbours()
+      pass_message_to_neighbours(Topology)
 
   end.
 
@@ -105,7 +112,7 @@ gossip_supervisor(Actor_List, Times_Called, NeighbourList) ->
       true ->
         Ind  = index_of(Alive_Actor, Actor_List),
         io:format("Alive actor found ~p, and Index is ~p", [Alive_Actor, Ind]),
-        pass_message_to_neighbours ! {Ind, NeighbourList, Actor_List, Alive_Actor}
+         Alive_Actor !  {"Gossip_Message", Ind, NeighbourList, Actor_List, Process_Id}
     end,
 
     gossip_supervisor(Actor_List, Times_Called + 1, NeighbourList)
