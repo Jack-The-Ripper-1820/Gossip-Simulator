@@ -18,5 +18,6 @@ But as this question is asked explicitly and has some exclusive tasks to be impl
 To introduce failures in the topology, a supervisor is being used to kill off random nodes,
 the number of nodes to be killed off is given as a parameter.
 
-The performance metric here is the number of nodes killed off on the X-axis and the number of calls done ny the supervisor in the Y-axis. 
+The performance metric here is the time interval when a node is killed off on the X-axis and the number of calls done ny the supervisor in the Y-axis. 
 
+![](Bonus Comparison.png)

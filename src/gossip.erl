@@ -21,6 +21,7 @@ index_of(Item, [_|Tl], Index) -> index_of(Item, Tl, Index+1).
 
 
 spawn_actors(Counter, Topology)->
+
   receive {"Gossip_Message", Index, NeighbourList, ActorList, Parent} ->
     Parent,
     if
@@ -32,7 +33,11 @@ spawn_actors(Counter, Topology)->
       true ->
         pass_message_to_neighbours ! {Index, NeighbourList, ActorList, self()},
         spawn_actors(Counter - 1, Topology)
-    end
+    end;
+    {"KILL_CALL"} ->
+      io:format("kill call triggered from Bonus Mode ~n"),
+      convergence ! {"Actor Kill", self()},
+      exit(kill)
   end.
 
 
@@ -110,8 +115,6 @@ gossip_supervisor(Actor_List, Times_Called, NeighbourList) ->
     io:format("Supervisor Counter ~w ~n", [Times_Called + 1]),
     Rem_Actors = Actor_List -- [Process_Id],
     Alive_Actor = get_alive_actor(length(Rem_Actors), Rem_Actors),
-    io:format("Alive ACTOR is ~p ~n", [Alive_Actor]),
-
     if
       Alive_Actor == no_alive_actor ->
         io:format("NO ALIVE ACTORS, CONVERGE THE ACTOR AND KILL THE PROGRAM ~n"),
@@ -140,3 +143,6 @@ get_alive_actor(Len, Actor_List) ->
       Actor;
     true -> get_alive_actor(Len - 1, Actor_List)
   end.
+
+
+

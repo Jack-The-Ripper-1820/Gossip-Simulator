@@ -42,7 +42,8 @@ Push Sum Algorithm - https://www.cs.cornell.edu/johannes/papers/2003/focs2003-go
 3) Enter the number of actors to be spawned by the algorithm.
 4) Enter the type of topology (Full Network/Line/2D/Imperfect 3D) in string format.
 5) Enter the type of algorithm (Gossip Algorithm/Push Sum Algorithm) in string format.
-8) This will start the execution of the selected algorithm and the user will be notified in the terminal of the time it took to reach convergence for the given parameters.
+6) Then select if you want to execute the bonus version of the project by typing "Yes"  or "NO".
+7) This will start the execution of the selected algorithm and the user will be notified in the terminal of the time it took to reach convergence for the given parameters.
 
 **Input Format**
 

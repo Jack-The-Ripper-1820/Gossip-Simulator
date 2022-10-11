@@ -18,10 +18,15 @@
 start() ->
 
   {ok, {Actor, Topology, Algorithm}} = io:read("provide the no.of actors, required topology and the algorithm ~n "),
+  {ok, Bonus_Mode} = io:read("Type Yes to run the program in Bonus Mode else NO ~n"),
+
   io:format("Actors ~w, Topology ~p, Algorithms ~p ~n", [Actor, Topology, Algorithm]),
 
   Convergence_Pid = spawn(?MODULE, check_for_convergence_condition, [Actor, erlang:system_time(millisecond)]),
   register(convergence, Convergence_Pid),
+
+  PIDBonus = spawn(bonus_mode, kill_actors, []),
+  register(bonus_mode_manager, PIDBonus),
 
 
   if
@@ -53,6 +58,7 @@ start() ->
 
       Initial_Gossip_Pid ! {"Gossip_Message", Index, NeighbourList, ActorList, self()};
 
+
     Algorithm == "Push Sum Algorithm" ->
 
       Pid = spawn(push_sum, push_sum_supervisor, [ActorList, 0, NeighbourList]),
@@ -66,6 +72,10 @@ start() ->
     true -> io:format("Invalid Algo!! Terminating the program."), erlang:halt(0)
   end,
 
+  if Bonus_Mode == "Yes" -> bonus_mode_manager ! {ActorList};
+    true -> do_nothing
+  end,
+
   io:format("Process Inited").
 
 
@@ -73,7 +83,7 @@ check_for_convergence_condition(0, Start_Time) ->
   End_Time = erlang:system_time(millisecond),
   io:format("Start Time ~w ~n", [Start_Time]),
   io:format("End Time ~w ~n", [End_Time]),
-  io:format(" ****** Final Convergence Achieved time is ~w milliseconds  ~n ******", [End_Time - Start_Time]),
+  io:format(" ** Final Convergence Achieved time is ~w milliseconds  ~n **", [End_Time - Start_Time]),
   erlang:halt(0);
 
 
@@ -81,7 +91,10 @@ check_for_convergence_condition(Actor, Start_Time) ->
   receive {"Actor Finished Work", Pid} ->
     Pid,
     io:format("Converged actors count ~p ~n", [Actor]),
-    check_for_convergence_condition(Actor - 1, Start_Time)
+    check_for_convergence_condition(Actor - 1, Start_Time);
+    {"Actor Kill", Pid} ->
+      io:format("Bonus Mode Killed Actor ~p", [Pid]),
+      check_for_convergence_condition(Actor - 1, Start_Time)
   end.
 
 init_topology(Actors, Topology, ActorList) ->
@@ -102,11 +115,11 @@ create_neighbours(ActorList, Topology, Actors) ->
 
     Topology == "2D" ->
       Neighbours = grid_view(Actors, ActorList);
-%%      io:format("2D Neighbour array is ~p and Actor array is ~p ~n", [Neighbours, ActorList]);
+  %io:format("2D Neighbour array is ~p and Actor array is ~p ~n", [Neighbours, ActorList]);
 
     Topology == "Imperfect 3D" ->
       Neighbours = imperfect_view(Actors, ActorList);
-      %io:format("2D Neighbour array is ~p and Actor array is ~p ~n", [Neighbours, ActorList]);
+  %io:format("2D Neighbour array is ~p and Actor array is ~p ~n", [Neighbours, ActorList]);
     true -> io:format("Invalid Topology!! Terminating the program."), erlang:halt(0), Neighbours = []
   end,
   Neighbours.
@@ -176,7 +189,6 @@ populate_grid(Idx, Rows, Actors, ActorList, RowEle, Matrix) ->
 
 grid_view(Actors , ActorList) ->
   Rows =  round(math:sqrt(Actors)),
-  io:format("actos ~p", [Actors]),
   Grid_Matrix =  populate_grid(1, Rows, Actors, ActorList, [], []),
   grid_view(Actors, Grid_Matrix, Rows, []).
 
@@ -353,10 +365,3 @@ imperfect_view(Index, Grid_Matrix, Rows, Neighbours, ActorList) ->
           imperfect_view(Index - 1, Grid_Matrix, Rows, lists:append(Neighbours, [[N1, N2, N3, N4, N5, N6, N7, N8, lists:nth( rand:uniform(length(Rem_List)), Rem_List)]]), ActorList)
       end
   end.
-
-
-
-
-
-
-
