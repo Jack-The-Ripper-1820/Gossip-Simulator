@@ -79,23 +79,23 @@ The following readings were calculated and averaged based on readings from two c
 
 **Line Topology**
 
-![](line gossip.png)
+![](line_gossip.png)
 
 **Full Topology**
 
-![](full gossip.png)
+![](full_gossip.png)
 
 **2D Topology**
 
-![](2D gossip.png)
+![](2D_gossip.png)
 
 **Imperfect 3D Topology**
 
-![](3D gossip.png)
+![](3D_gossip.png)
 
 **Comparison of Gossip Topologies**
 
-![](gossip combined.png)
+![](gossip_combined.png)
 
 **Push Sum Algorithm**
 
@@ -103,23 +103,23 @@ The following readings were calculated and averaged based on readings from two c
 
 **Line Topology**
 
-![](line PS.png)
+![](line_PS.png)
 
 **Full Topology**
 
-![](full PS.png)
+![](full_PS.png)
 
 **2D Topology**
 
-![](2D PS.png)
+![](2D_PS.png)
 
 **Imperfect 3D Topology**
 
-![](3D PS.png)
+![](3D_PS.png)
 
 **Comparison of Push Sum Algorithm**
 
-![](PS combined.png)
+![](PS_combined.png)
 
 
 
