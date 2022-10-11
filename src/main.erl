@@ -10,13 +10,10 @@
 -author("akhil").
 
 %% API
--export([start/0, hi/0]).
+-export([start/0]).
 -export([init_topology/3,  grid_view/2, grid_view/4, imperfect_view/2, imperfect_view/5 ,check_for_convergence_condition/2]).
 
 -define(GOSSIP_MESSAGE, "gossip_message").
-
-hi() ->
-  io:format("Hey!").
 
 start() ->
 
@@ -29,10 +26,10 @@ start() ->
 
   if
     Algorithm  == "Gossip Algorithm"->
-      ActorList = [spawn(gossip, spawn_actors, [10]) || _ <- lists:seq(1, Actor)];
+      ActorList = [spawn(gossip, spawn_actors, [10, Topology]) || _ <- lists:seq(1, Actor)];
 
     Algorithm == "Push Sum Algorithm" ->
-      ActorList = [spawn(push_sum, spawn_actors, [Idx, 1, 0]) || Idx <- lists:seq(1, Actor)];
+      ActorList = [spawn(push_sum, spawn_actors, [Idx, 1, 0, Topology]) || Idx <- lists:seq(1, Actor)];
 
     true ->  io:format("Invalid Algo!! Terminating the program."), erlang:halt(0), ActorList =[]
   end,
@@ -51,7 +48,7 @@ start() ->
 
       Initial_Gossip_Pid = lists:nth(Index, ActorList),
 
-      Pass_to_Neighbours_Pid = spawn(gossip, pass_message_to_neighbours, []),
+      Pass_to_Neighbours_Pid = spawn(gossip, pass_message_to_neighbours, [Topology]),
       register(pass_message_to_neighbours, Pass_to_Neighbours_Pid),
 
       Initial_Gossip_Pid ! {"Gossip_Message", Index, NeighbourList, ActorList, self()};
@@ -62,7 +59,7 @@ start() ->
       register(push_sum_supervisor,Pid),
 
       Initial_Path_Sum_Pid = lists:nth(Index, ActorList),
-      Pass_to_Neighbours_Pid = spawn(push_sum, pass_message_to_neighbours, []),
+      Pass_to_Neighbours_Pid = spawn(push_sum, pass_message_to_neighbours, [Topology]),
       register(pass_message_to_neighbours, Pass_to_Neighbours_Pid),
       Initial_Path_Sum_Pid ! {"Push_Sum", Index, NeighbourList, ActorList, self(), 0, 0};
 

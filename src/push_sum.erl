@@ -10,7 +10,7 @@
 -author("akhil").
 
 %% API
--export([spawn_actors/3, pass_message_to_neighbours / 0, index_of/2, push_sum_supervisor/ 3]).
+-export([spawn_actors/4, pass_message_to_neighbours / 1, index_of/2, push_sum_supervisor/ 3]).
 
 index_of(Item, List) -> index_of(Item, List, 1).
 
@@ -19,9 +19,9 @@ index_of(Item, [Item|_], Index) -> Index;
 index_of(Item, [_|Tl], Index) -> index_of(Item, Tl, Index+1).
 
 
-spawn_actors(S, W, Counter)->
+spawn_actors(S, W, Counter, Topology)->
     receive {"Push_Sum", Index, NeighbourList, ActorList, Parent, Received_S, Received_W} ->
-
+        Topology,
         if
            Counter > 3 ->
 
@@ -44,19 +44,26 @@ spawn_actors(S, W, Counter)->
                     true -> NewCounter = 0
                 end,
                 pass_message_to_neighbours ! {Index, NeighbourList, ActorList, self(), New_S / 2, New_W / 2},
-                spawn_actors(New_S / 2, New_W / 2, NewCounter)
+                spawn_actors(New_S / 2, New_W / 2, NewCounter, Topology)
         end
 
     end.
 
-pass_message_to_neighbours() ->
+pass_message_to_neighbours(Topology) ->
     receive
         {Index, NeighbourList, ActorList, PID, S, W} ->
 
-            Neighbours = lists:nth(Index, NeighbourList),
+            if Topology == "Full Network" ->
+                Neighbours = ActorList -- [PID],
+                X  = get_alive_actor(length(Neighbours), Neighbours),
+                if  X == no_alive_actor -> gossip_supervisor ! {"No_Neighbours_Found", "Help_For_Convergence",X};
+                    true -> X ! {"Push_Sum", index_of(X, ActorList), NeighbourList, ActorList, PID, s, w}
+                end;
+                true ->  Neighbours = lists:nth(Index, NeighbourList)
+            end,
             if length(Neighbours) == 0 ->
                 push_sum_supervisor ! {"No_Neighbours_Found", "Help_For_Convergence",PID, S,W},
-                pass_message_to_neighbours();
+                pass_message_to_neighbours(Topology);
 
                 true ->
                     Len = length(Neighbours),
@@ -68,18 +75,18 @@ pass_message_to_neighbours() ->
                             Deleted_Neig = Neighbours -- [lists:nth(Rand_index, Neighbours)],
                             Updated_Neighbours = lists:sublist(NeighbourList, Index - 1) ++  [Deleted_Neig] ++ lists:nthtail(Index, NeighbourList),
                             self() ! {Index, Updated_Neighbours, ActorList, PID, S, W},
-                            pass_message_to_neighbours();
+                            pass_message_to_neighbours(Topology);
                         true ->
                             Neighbour_Pid ! {"Push_Sum", index_of(Neighbour_Pid, ActorList), NeighbourList, ActorList, PID, S, W},
                             self() ! {Index, NeighbourList, ActorList, PID},
-                            pass_message_to_neighbours()
+                            pass_message_to_neighbours(Topology)
                     end
             end;
 
         {"Can't acknowledge any more messages", State , PID, ActorList, NeighbourList, Neighbour_Pid, S, W} ->
             State, Neighbour_Pid,
             self() ! {index_of(PID, ActorList), NeighbourList, ActorList, PID, S, W},
-            pass_message_to_neighbours()
+            pass_message_to_neighbours(Topology)
 
     end.
 
